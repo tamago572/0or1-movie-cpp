@@ -4,7 +4,7 @@
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/opt/homebrew/include/opencv4"
+                "/opt/homebrew/**"
             ],
             "defines": [],
             "macFrameworkPath": [
