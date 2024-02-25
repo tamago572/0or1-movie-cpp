@@ -32,45 +32,50 @@ int main(int argc, char* argv[])
 
     cv::Mat img;
 
-    // system("afplay /Users/potesala/badapple.mp3&");
+    system("afplay /Users/potesala/badapple.mp3&");
 
     // フレームレートを設定（1/30秒）
-    std::chrono::milliseconds frame_duration(1000 / 30);
+    std::chrono::microseconds frame_duration(1000000 / (int)fps);
 
     for (int i = 0; i < max_frame; i++) {
         auto start = std::chrono::high_resolution_clock::now();
 
-        std::cout << "\x1b[38;2;255;255;255m" << "current frame: " << i+1 << std::endl;
+        std::cout << "\x1b[38;2;255;255;255m" << "current frame: " << i+1 << ", " << std::endl;
         // //1フレーム分取り出してimgに保持させる
         cap >> img;
 
-        for (int y = 0; y < img_h; y++) {
-            for (int x = 0; x < img_w; x++) {
+        for (int i = 0; i < img_w * img_h; i++) {
+            int x = i % img_w;
+            int y = i / img_w;
+            // std::cout << "x: " << x << " , y: " << y << std::endl;
+            int B = img.at<cv::Vec3b>(y, x)[0];
+            int G = img.at<cv::Vec3b>(y, x)[1];
+            int R = img.at<cv::Vec3b>(y, x)[2];
 
-                int B = img.at<cv::Vec3b>(y, x)[0];
-                int G = img.at<cv::Vec3b>(y, x)[1];
-                int R = img.at<cv::Vec3b>(y, x)[2];
+            std::cout << "\x1b[38;2;" << R << ";" << G << ";" << B << "m" << 0;
 
-                std::cout << "\x1b[38;2;" << R << ";" << G << ";" << B << "m" << 0;
+            // 1行の描画が最後まで行った場合、改行
+            if ((i + 1) % img_w == 0) {
+                std::cout << std::endl;
             }
-            std::cout << std::endl;
-
 
         }
         // 処理終了時間を記録
         std::cout << "\e[" << img_h+2 << "A" << std::endl;
         auto end = std::chrono::high_resolution_clock::now();
         // 処理にかかった時間を計算
-        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+        auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
         // 次のフレームまでの待機時間を計算（処理にかかった時間を考慮）
         auto wait_time = frame_duration - elapsed;
 
         if(wait_time.count() < 0) {
-            wait_time = std::chrono::milliseconds(0);
+            wait_time = std::chrono::microseconds(0);
         }
 
         // 次のフレームまで待機
-        std::this_thread::sleep_for(wait_time);
+        // std::this_thread::sleep_for(wait_time);
+
+        usleep(33333.333);
 
         // std::cout << duration << "ms" << std::endl;
 
