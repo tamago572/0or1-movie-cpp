@@ -31,6 +31,7 @@ int main(int argc, char* argv[])
     std::cout << "max frame: " << max_frame << std::endl;
 
     cv::Mat img;
+    cv::Mat outImg;
 
     system("afplay /Users/potesala/badapple.mp3&");
 
@@ -43,14 +44,15 @@ int main(int argc, char* argv[])
         std::cout << "\x1b[38;2;255;255;255m" << "current frame: " << i+1 << ", " << std::endl;
         // //1フレーム分取り出してimgに保持させる
         cap >> img;
+        cv::threshold(img, outImg, 50, 255, cv::THRESH_BINARY);
 
         for (int i = 0; i < img_w * img_h; i++) {
             int x = i % img_w;
             int y = i / img_w;
             // std::cout << "x: " << x << " , y: " << y << std::endl;
-            int B = img.at<cv::Vec3b>(y, x)[0];
-            int G = img.at<cv::Vec3b>(y, x)[1];
-            int R = img.at<cv::Vec3b>(y, x)[2];
+            int B = outImg.at<cv::Vec3b>(y, x)[0];
+            int G = outImg.at<cv::Vec3b>(y, x)[1];
+            int R = outImg.at<cv::Vec3b>(y, x)[2];
 
             std::cout << "\x1b[38;2;" << R << ";" << G << ";" << B << "m" << 0;
 
@@ -73,24 +75,7 @@ int main(int argc, char* argv[])
         }
 
         // 次のフレームまで待機
-        // std::this_thread::sleep_for(wait_time);
-
-        usleep(33333.333);
-
-        // std::cout << duration << "ms" << std::endl;
-
-        // auto start2 = std::chrono::high_resolution_clock::now();
-
-
-
-        // auto end2 = std::chrono::high_resolution_clock::now();
-
-        // auto duration2 = std::chrono::duration_cast<std::chrono::milliseconds>(end2 - start2).count();
-
-        // std::cout << std::endl << duration2 << "ms" << std::endl;
-
-
-        // break;
+        std::this_thread::sleep_for(wait_time);
     }
 
     return 0;
