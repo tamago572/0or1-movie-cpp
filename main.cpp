@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <chrono>
 #include <thread>
+#include <time.h>
 using namespace std;
 
 unsigned int sleep(unsigned int seconds);
@@ -34,11 +35,13 @@ int main(int argc, char* argv[])
 
     system("afplay /Users/potesala/badapple.mp3&");
 
-    // フレームレートを設定（1/30秒）
-    std::chrono::microseconds frame_duration(1000000 / (int)fps);
+    // フレーム間隔をナノ秒単位で計算（1秒 = 1,000,000,000ナノ秒）
+    // long frame_interval = 1000000000 / fps;
 
     for (int i = 0; i < max_frame; i++) {
-        auto start = std::chrono::high_resolution_clock::now();
+
+        // フレームの開始時間を記録
+        // auto start_time = std::chrono::high_resolution_clock::now();
 
         std::cout << "\x1b[38;2;255;255;255m" << "current frame: " << i+1 << ", " << std::endl;
         // //1フレーム分取り出してimgに保持させる
@@ -52,7 +55,12 @@ int main(int argc, char* argv[])
             int G = img.at<cv::Vec3b>(y, x)[1];
             int R = img.at<cv::Vec3b>(y, x)[2];
 
-            std::cout << "\x1b[38;2;" << R << ";" << G << ";" << B << "m" << 0;
+            int text = 0;
+            if (B > 36) {
+                text = 1;
+            }
+
+            std::cout << "\x1b[38;2;" << R << ";" << G << ";" << B << "m" << text;
 
             // 1行の描画が最後まで行った場合、改行
             if ((i + 1) % img_w == 0) {
@@ -60,38 +68,37 @@ int main(int argc, char* argv[])
             }
 
         }
-        // 処理終了時間を記録
         std::cout << "\e[" << img_h+2 << "A" << std::endl;
-        auto end = std::chrono::high_resolution_clock::now();
-        // 処理にかかった時間を計算
-        auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-        // 次のフレームまでの待機時間を計算（処理にかかった時間を考慮）
-        auto wait_time = frame_duration - elapsed;
-
-        if(wait_time.count() < 0) {
-            wait_time = std::chrono::microseconds(0);
-        }
-
-        // 次のフレームまで待機
-        // std::this_thread::sleep_for(wait_time);
-
-        usleep(33333.333);
-
-        // std::cout << duration << "ms" << std::endl;
-
-        // auto start2 = std::chrono::high_resolution_clock::now();
+        // 33ミリ秒止める（33000000ナノ秒）
+        struct timespec ts;
+        ts.tv_sec = 0;
+        ts.tv_nsec = 23333333;
+        nanosleep(&ts, NULL);
 
 
+        // cv::waitKey(1/fps);
+         // フレームの終了時間を記録
+        // auto end_time = std::chrono::high_resolution_clock::now();
 
-        // auto end2 = std::chrono::high_resolution_clock::now();
+        // // 処理にかかった時間を計算（ナノ秒単位）
+        // auto elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
 
-        // auto duration2 = std::chrono::duration_cast<std::chrono::milliseconds>(end2 - start2).count();
+        // // 次のフレームまでの待機時間を計算（処理にかかった時間を引く）
+        // long wait_time = frame_interval - elapsed_time;
 
-        // std::cout << std::endl << duration2 << "ms" << std::endl;
+        // // 計算結果が負にならないようにする
+        // if(wait_time < 0) {
+        //     wait_time = 0;
+        // }
 
+        // // 次のフレームまで待機（nanosleepを使用）
+        // struct timespec ts;
+        // ts.tv_sec = wait_time / 1000000000;
+        // ts.tv_nsec = wait_time % 1000000000;
+        // nanosleep(&ts, NULL);
 
-        // break;
     }
-
+    std::cout << std::endl << "\x1b[38;2;255;255;255mご視聴ありがとうございました！" << std::endl;
+    std::cout << std::endl << "是非高評価、チャンネル登録よろしくお願いします！" << std::endl;
     return 0;
 }
