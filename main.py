@@ -1,10 +1,6 @@
-import time
 import cv2
 import sys
-import os
 import pygame
-import datetime
-import threading
 
 args = sys.argv
 
